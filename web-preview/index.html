@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker - Home Screen Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* iPhone Frame Container */
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            border: 8px solid #000;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* iPhone Notch */
+        .phone-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%; /* Fill the phone container */
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #F5F6F7;
+            position: relative;
+        }
+
+        .home-screen {
+            background: #F5F6F7;
+            height: 100%;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* Custom Header */
+        .custom-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: #FFFFFF;
+            height: 52px;
+            margin-top: 30px; /* Account for notch */
+        }
+
+        .chevron-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #EBEEF0;
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #8B95A2;
+        }
+
+        .month-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #242D35;
+        }
+
+        /* Stats Section - Responsive with fixed 24px padding */
+        .stats-section {
+            width: 100%; /* Take full phone screen width */
+            padding: 16px 24px; /* Fixed 24px padding ALWAYS */
+            background: #F5F6F7;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-sizing: border-box; /* Include padding in width */
+            flex: none; /* Don't grow/shrink */
+        }
+
+        /* Monthly Card - Content-based height */
+        .stats-card.monthly {
+            width: 100%; /* Take full width of stats-section (minus its padding) */
+            padding: 16px; /* Fixed 16px padding all sides */
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 16px;
+            color: white;
+            position: relative;
+            box-shadow: 0px 8px 64px rgba(29, 58, 88, 0.12);
+            box-sizing: border-box;
+            flex: none;
+            /* REMOVED: height: 148px - let content + padding determine height naturally */
+            display: flex;
+            flex-direction: column;
+            gap: 16px; /* Space between content sections */
+        }
+
+        /* Daily Card - Content-based height */
+        .stats-card.daily {
+            width: 100%; /* Take full width of stats-section (minus its padding) */
+            padding: 16px; /* Fixed 16px padding all sides */
+            background: white;
+            border-radius: 16px;
+            color: #242D35;
+            box-shadow: 0px 8px 64px rgba(29, 58, 88, 0.12);
+            box-sizing: border-box;
+            flex: none;
+            /* REMOVED: height: 122px - let content + padding determine height naturally */
+            display: flex;
+            flex-direction: column;
+            gap: 14px; /* Space between title and amount */
+        }
+
+        .stats-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .stats-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .stats-title {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .stats-card.monthly .stats-title,
+        .stats-card.monthly .stats-icon,
+        .stats-card.monthly .chevron {
+            color: white !important;
+        }
+
+        .stats-card.daily .stats-title {
+            color: #8B95A2;
+        }
+
+        .stats-amount {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stats-card.monthly .stats-amount {
+            color: white !important;
+        }
+
+        .stats-card.daily .stats-amount {
+            color: #242D35;
+        }
+
+        /* Responsive progress bar - no absolute positioning */
+        .progress-container {
+            width: 100%; /* Full width of card content */
+            height: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Space between bar and percentage */
+        }
+
+        .progress-bar-track {
+            flex: 1; /* Take all remaining space */
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            width: 30%; /* 30% of the track width */
+            height: 4px;
+            background: #6FCF97;
+            border-radius: 10px;
+        }
+
+        .progress-percentage {
+            flex: none; /* Fixed size, don't grow/shrink */
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            color: white;
+            line-height: 16px;
+            min-width: 35px; /* Minimum space for percentage text */
+            text-align: right;
+        }
+
+        /* Responsive content inside cards */
+        .card-content {
+            width: 100%; /* Take full card width minus card padding */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title-section {
+            width: 100%; /* Responsive to card width */
+            display: flex;
+            align-items: center; /* Changed from flex-start for better alignment */
+            justify-content: space-between;
+            /* REMOVED: height: 48px - let content determine height */
+            /* REMOVED: margin-bottom: 16px - using gap instead */
+        }
+
+        .card-amount {
+            width: 100%; /* Responsive width */
+            font-family: 'Inter', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2; /* Better line height for natural sizing */
+            /* REMOVED: margin-bottom: 16px - using gap instead */
+            /* No fixed height - text will size naturally */
+        }
+
+        /* For responsive design - always maintain 24px padding */
+        @media (max-width: 375px) {
+            .stats-section {
+                padding: 16px 24px; /* Keep 24px even on smaller screens */
+            }
+        }
+
+        @media (min-width: 376px) {
+            .stats-section {
+                padding: 16px 24px; /* Keep 24px on larger screens */
+            }
+        }
+
+
+        /* Categories Section */
+        .categories-section {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 32px 24px 32px 24px;
+            margin-top: 0;
+            min-height: calc(100vh - 414px);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #242D35;
+            margin-bottom: 32px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            min-height: 64px;
+            cursor: pointer;
+        }
+
+        .category-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .category-icon-container {
+            width: 44px;
+            height: 44px;
+            background: #EBEEF0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            font-size: 20px;
+        }
+
+        .category-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #242D35;
+        }
+
+        .category-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .category-amount {
+            font-weight: 600;
+            font-size: 16px;
+            color: #242D35;
+            margin-right: 8px;
+        }
+
+        /* Bottom Navigation - Height 90px total */
+        .bottom-navigation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            box-shadow: 0px 8px 64px rgba(29, 58, 88, 0.12);
+            border-top: 0.5px solid rgba(217, 219, 222, 0.68);
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            align-items: flex-end;
+            height: 56px;
+            position: relative;
+        }
+
+        .nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 8px 4px 4px;
+        }
+
+        .nav-tab-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            font-size: 20px;
+        }
+
+        /* FAB Button in Bottom Nav */
+        .fab-in-nav {
+            position: absolute;
+            left: 50%;
+            top: -8px;
+            transform: translateX(-50%);
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            background: linear-gradient(135deg, #0E33F3 0%, #4F8EFF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 6px 24px rgba(18, 98, 251, 0.32);
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .fab-plus-icon {
+            width: 32px;
+            height: 32px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Home Indicator - 34px height */
+        .home-indicator {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-indicator-line {
+            width: 135px;
+            height: 5px;
+            background: #242D35;
+            border-radius: 100px;
+        }
+
+        /* Adjust main content to account for bottom navigation */
+        .home-screen {
+            background: #F5F6F7;
+            height: 100%;
+            position: relative;
+            overflow-y: auto;
+            padding-bottom: 0;
+        }
+
+        .chevron {
+            color: #8B95A2;
+            font-size: 18px;
+        }
+
+        .monthly .chevron {
+            color: white;
+        }
+
+        /* Hover effects */
+        .chevron-button:hover, .category-item:hover {
+            background: #f8f9fa;
+        }
+
+        .fab-button:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- iPhone Frame -->
+    <div class="phone-container">
+        <div class="phone-screen">
+            <div class="home-screen">
+                <!-- Custom Header -->
+                <div class="custom-header">
+                    <div class="chevron-button">‹</div>
+                    <div class="month-text">Tháng 8, 2025</div>
+                    <div class="chevron-button">›</div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <!-- Monthly Stats Card -->
+                    <div class="stats-card monthly">
+                        <div class="stats-header">
+                            <div class="stats-header-left">
+                                <div class="stats-icon">💳</div>
+                                <div class="stats-title">Tổng chi tiêu</div>
+                            </div>
+                            <div class="chevron">›</div>
+                        </div>
+                        <div class="stats-amount">16.500.000 ₫</div>
+                        <div class="progress-container">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill"></div>
+                            </div>
+                            <span class="progress-percentage">30%</span>
+                        </div>
+                    </div>
+
+                    <!-- Daily Stats Card -->
+                    <div class="stats-card daily">
+                        <div class="stats-header">
+                            <div class="stats-header-left">
+                                <div class="stats-icon">💳</div>
+                                <div class="stats-title">Hôm nay</div>
+                            </div>
+                            <div class="chevron">›</div>
+                        </div>
+                        <div class="stats-amount">2.344.000 ₫</div>
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div class="categories-section">
+                    <div class="section-title">Top 3 danh mục</div>
+                    
+                    <div class="category-item">
+                        <div class="category-content">
+                            <div class="category-icon-container">🍽️</div>
+                            <div class="category-title">Thực phẩm</div>
+                        </div>
+                        <div class="category-right">
+                            <div class="category-amount">12.857.000 ₫</div>
+                            <div class="chevron">›</div>
+                        </div>
+                    </div>
+
+                    <div class="category-item">
+                        <div class="category-content">
+                            <div class="category-icon-container">🛍️</div>
+                            <div class="category-title">Thời trang</div>
+                        </div>
+                        <div class="category-right">
+                            <div class="category-amount">7.342.000 ₫</div>
+                            <div class="chevron">›</div>
+                        </div>
+                    </div>
+
+                    <div class="category-item">
+                        <div class="category-content">
+                            <div class="category-icon-container">🏠</div>
+                            <div class="category-title">Tiền nhà</div>
+                        </div>
+                        <div class="category-right">
+                            <div class="category-amount">5.155.000 ₫</div>
+                            <div class="chevron">›</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Navigation -->
+                <div class="bottom-navigation">
+                    <div class="bottom-nav-content">
+                        <!-- Left Tab -->
+                        <div class="nav-tab">
+                            <div class="nav-tab-icon">📝</div>
+                        </div>
+                        
+                        <!-- FAB Button -->
+                        <button class="fab-in-nav">
+                            <span class="fab-plus-icon">+</span>
+                        </button>
+                        
+                        <!-- Right Tab -->
+                        <div class="nav-tab">
+                            <div class="nav-tab-icon">⚙️</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Home Indicator -->
+                    <div class="home-indicator">
+                        <div class="home-indicator-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click interactions
+        document.querySelectorAll('.chevron-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Month navigation clicked');
+                alert('Month navigation - would change month in React Native app');
+            });
+        });
+
+        document.querySelectorAll('.stats-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const type = card.classList.contains('monthly') ? 'Monthly' : 'Daily';
+                console.log(`${type} stats clicked`);
+                alert(`${type} stats clicked - would navigate to details in React Native app`);
+            });
+        });
+
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.querySelector('.category-name').textContent;
+                console.log(`Category ${name} clicked`);
+                alert(`Category "${name}" clicked - would show category details in React Native app`);
+            });
+        });
+
+        document.querySelector('.fab-in-nav').addEventListener('click', () => {
+            console.log('FAB button clicked');
+            alert('Add new expense - would open Add Expense screen in React Native app');
+        });
+
+        // Add loading simulation
+        setTimeout(() => {
+            console.log('Home screen loaded with mock data');
+        }, 800);
+    </script>
+</body>
+</html>
