@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  TouchableOpacity,
 } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -18,38 +19,31 @@ import StatsCard from '../components/common/StatsCard';
 import CategoryItem from '../components/common/CategoryItem';
 import FABButton from '../components/common/FABButton';
 
-// Mock Data
-import { mockExpenseData, MockExpenseData, MockCategory } from '../data/mockData';
+// Real Data Integration
+import { useExpenseData } from '../hooks/useExpenseData';
+import type { CategoryWithAmount } from '../services/expenseService';
 
 const HomeScreen: React.FC = () => {
-  const [expenseData, setExpenseData] = useState<MockExpenseData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadExpenseData();
-  }, []);
-
-  const loadExpenseData = async () => {
-    try {
-      setLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setExpenseData(mockExpenseData);
-    } catch (error) {
-      console.error('Error loading expense data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use enhanced expense data hook with built-in navigation
+  const {
+    data,
+    loading,
+    error,
+    goToPreviousMonth,
+    goToNextMonth,
+    refreshData,
+    getFormattedMonth,
+    isCurrentMonth
+  } = useExpenseData();
 
   const handlePreviousMonth = () => {
     console.log('Navigate to previous month');
-    // TODO: Implement month navigation logic
+    goToPreviousMonth();
   };
 
   const handleNextMonth = () => {
     console.log('Navigate to next month');
-    // TODO: Implement month navigation logic
+    goToNextMonth();
   };
 
   const handleStatsCardPress = (type: 'monthly' | 'daily') => {
@@ -57,7 +51,7 @@ const HomeScreen: React.FC = () => {
     // TODO: Navigate to detailed stats screen
   };
 
-  const handleCategoryPress = (category: MockCategory) => {
+  const handleCategoryPress = (category: CategoryWithAmount) => {
     console.log('Category pressed:', category.name);
     // TODO: Navigate to category detail screen
   };
@@ -67,11 +61,27 @@ const HomeScreen: React.FC = () => {
     // TODO: Navigate to Add Expense screen
   };
 
-  if (loading || !expenseData) {
+  // Show loading state
+  if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Đang tải...</Text>
+          <Text style={styles.loadingText}>🔄 Đang tải dữ liệu từ Supabase...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>❌ Lỗi</Text>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={refreshData}>
+            <Text style={styles.retryText}>Thử lại</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -86,7 +96,7 @@ const HomeScreen: React.FC = () => {
       >
         {/* Custom Header */}
         <CustomHeader
-          currentMonth={expenseData.currentMonth}
+          currentMonth={getFormattedMonth()}
           onPreviousMonth={handlePreviousMonth}
           onNextMonth={handleNextMonth}
         />
@@ -96,24 +106,26 @@ const HomeScreen: React.FC = () => {
           <StatsCard
             type="monthly"
             title="Tổng chi tiêu"
-            amount={expenseData.monthlyTotal}
-            progress={expenseData.monthlyProgress}
+            amount={data.monthlyTotal}
+            progress={data.monthlyProgress}
             onPress={() => handleStatsCardPress('monthly')}
           />
-          
-          <StatsCard
-            type="daily"
-            title="Hôm nay"
-            amount={expenseData.dailyTotal}
-            onPress={() => handleStatsCardPress('daily')}
-          />
+
+          {isCurrentMonth() && (
+            <StatsCard
+              type="daily"
+              title="Hôm nay"
+              amount={data.dailyTotal}
+              onPress={() => handleStatsCardPress('daily')}
+            />
+          )}
         </View>
 
         {/* Categories Section */}
         <View style={styles.categoriesSection}>
           <Text style={styles.sectionTitle}>Top 3 danh mục</Text>
-          
-          {expenseData.topCategories.map((category, index) => (
+
+          {data.topCategories.map((category) => (
             <CategoryItem
               key={category.id}
               category={category}
@@ -175,6 +187,42 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: spacing.fabSize,
   } as ViewStyle,
+
+  // Error and loading states
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  } as ViewStyle,
+
+  errorTitle: {
+    ...typography.heading16,
+    color: colors.error,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  } as TextStyle,
+
+  errorText: {
+    ...typography.body14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+  } as TextStyle,
+
+  retryButton: {
+    backgroundColor: colors.primaryBlue,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+  } as ViewStyle,
+
+  retryText: {
+    ...typography.body14,
+    color: colors.white,
+    fontWeight: '600',
+  } as TextStyle,
+
 });
 
 export default HomeScreen;

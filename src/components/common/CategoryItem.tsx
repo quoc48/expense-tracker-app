@@ -16,7 +16,7 @@ interface CategoryItemProps {
     id: string;
     name: string;
     amount: number;
-    iconName: string;
+    iconName?: string | null;
   };
   onPress?: () => void;
 }
@@ -54,7 +54,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ category, onPress }) => {
       <View style={styles.leftSection}>
         <View style={styles.iconContainer}>
           <Text style={styles.iconText}>
-            {getCategoryIcon(category.iconName)}
+            {getCategoryIcon(category.iconName || 'others')}
           </Text>
         </View>
         <Text style={styles.categoryName}>{category.name}</Text>

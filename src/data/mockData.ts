@@ -1,5 +1,6 @@
-// Mock data for Home screen development
-// This data structure matches our Supabase schema and Figma design
+
+// Enhanced mock data that simulates real Supabase data structure
+// Based on your actual database with 730+ expense records
 
 export interface MockCategory {
   id: string;
@@ -8,72 +9,97 @@ export interface MockCategory {
   iconName: string;
 }
 
+export interface MockExpense {
+  date: string;
+  amount: number;
+  category: string;
+  note: string;
+}
+
 export interface MockExpenseData {
   monthlyTotal: number;
   dailyTotal: number;
-  monthlyProgress: number; // 0-1 (0% to 100%)
+  monthlyProgress: number;
   currentMonth: string;
   topCategories: MockCategory[];
+  recentExpenses?: MockExpense[];
+  databaseStats?: {
+    totalRecords: number;
+    currentMonthRecords: number;
+    todayRecords: number;
+    categoriesCount: number;
+    avgDailySpending: number;
+    connectionStatus: string;
+  };
 }
 
+// Realistic Vietnamese expense data (simulating your 730+ Supabase records)
 export const mockExpenseData: MockExpenseData = {
-  monthlyTotal: 16500000, // 16,500,000 VND
-  dailyTotal: 2344000,    // 2,344,000 VND
-  monthlyProgress: 0.3,   // 30% of monthly budget
-  currentMonth: 'Tháng 8, 2025',
-  topCategories: [
+  "monthlyTotal": 16850000,
+  "dailyTotal": 2344000,
+  "monthlyProgress": 0.31,
+  "currentMonth": "Tháng 9, 2024",
+  "topCategories": [
     {
-      id: '1',
-      name: 'Thực phẩm',
-      amount: 12857000,
-      iconName: 'food',
+      "id": "1",
+      "name": "Thực phẩm",
+      "amount": 5250000,
+      "iconName": "food"
     },
     {
-      id: '2',
-      name: 'Thời trang',
-      amount: 7342000,
-      iconName: 'shopping',
+      "id": "2",
+      "name": "Di chuyển",
+      "amount": 3180000,
+      "iconName": "transport"
     },
     {
-      id: '3',
-      name: 'Tiền nhà',
-      amount: 5155000,
-      iconName: 'rent',
-    },
+      "id": "3",
+      "name": "Nhà ở",
+      "amount": 2890000,
+      "iconName": "home"
+    }
   ],
+  "recentExpenses": [
+    {
+      "date": "2024-09-13",
+      "amount": 85000,
+      "category": "Thực phẩm",
+      "note": "Cơm trưa"
+    },
+    {
+      "date": "2024-09-13",
+      "amount": 45000,
+      "category": "Di chuyển",
+      "note": "Grab"
+    },
+    {
+      "date": "2024-09-12",
+      "amount": 350000,
+      "category": "Thực phẩm",
+      "note": "Mua đồ ăn tuần"
+    },
+    {
+      "date": "2024-09-12",
+      "amount": 150000,
+      "category": "Giải trí",
+      "note": "Xem phim"
+    },
+    {
+      "date": "2024-09-11",
+      "amount": 25000,
+      "category": "Di chuyển",
+      "note": "Xe bus"
+    }
+  ],
+  "databaseStats": {
+    "totalRecords": 730,
+    "currentMonthRecords": 87,
+    "todayRecords": 5,
+    "categoriesCount": 14,
+    "avgDailySpending": 562000,
+    "connectionStatus": "connected"
+  }
 };
 
-// Additional mock categories for future use
-export const allMockCategories: MockCategory[] = [
-  { id: '1', name: 'Thực phẩm', amount: 12857000, iconName: 'food' },
-  { id: '2', name: 'Thời trang', amount: 7342000, iconName: 'shopping' },
-  { id: '3', name: 'Tiền nhà', amount: 5155000, iconName: 'rent' },
-  { id: '4', name: 'Giao thông', amount: 2100000, iconName: 'transport' },
-  { id: '5', name: 'Giải trí', amount: 1800000, iconName: 'entertainment' },
-  { id: '6', name: 'Y tế', amount: 1500000, iconName: 'health' },
-  { id: '7', name: 'Giáo dục', amount: 1200000, iconName: 'education' },
-  { id: '8', name: 'Tiện ích', amount: 900000, iconName: 'utilities' },
-  { id: '9', name: 'Bảo hiểm', amount: 800000, iconName: 'insurance' },
-  { id: '10', name: 'Du lịch', amount: 600000, iconName: 'travel' },
-  { id: '11', name: 'Quà tặng', amount: 400000, iconName: 'gifts' },
-  { id: '12', name: 'Khác', amount: 300000, iconName: 'others' },
-  { id: '13', name: 'Đầu tư', amount: 200000, iconName: 'investment' },
-  { id: '14', name: 'Lương', amount: 25000000, iconName: 'salary' },
-];
-
-// Mock functions to simulate API calls
-export const getMockExpenseData = (): Promise<MockExpenseData> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(mockExpenseData);
-    }, 500); // Simulate network delay
-  });
-};
-
-export const getMockTopCategories = (): Promise<MockCategory[]> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(mockExpenseData.topCategories);
-    }, 300);
-  });
-};
+// Export individual pieces for easy testing
+export const { monthlyTotal, dailyTotal, topCategories, recentExpenses, databaseStats } = mockExpenseData;
