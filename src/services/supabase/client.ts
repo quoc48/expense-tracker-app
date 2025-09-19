@@ -1,10 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './types';
 
-// Environment variables for both React Native and Web
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL || '';
-// Use service_role for development since anon key has permission issues
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+// Fallback to hardcoded values for React Native since @env might not work in iOS
+const supabaseUrl = 'https://ewxplrndtazcxnhiiwfl.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3eHBscm5kdGF6Y3huaGlpd2ZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMTEyMDcsImV4cCI6MjA2OTc4NzIwN30.TMcG4ZLAe93GL2txBuh-D_wXvfqRMe1oY_7fF8tF2zc';
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Missing Supabase environment variables');

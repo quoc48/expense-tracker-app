@@ -40,7 +40,7 @@ export const typography = {
   money24: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
-    lineHeight: 20,
+    lineHeight: 28,
   } as TextStyle,
   
   money32: {

@@ -43,7 +43,14 @@ const StatsCard: React.FC<StatsCardProps> = ({
   );
 
   const ChevronButton = () => (
-    <TouchableOpacity style={styles.chevronButton} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.chevronButton}
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`View ${type} expense details`}
+      accessibilityHint="Double tap to see detailed expense information"
+    >
       <Text style={[
         styles.chevronText,
         { color: type === 'monthly' ? colors.white : colors.textSecondary }
@@ -56,8 +63,12 @@ const StatsCard: React.FC<StatsCardProps> = ({
   if (type === 'monthly') {
     return (
       <LinearGradient
-        colors={['#1A2B3D', '#2D3748']}
+        colors={['#3B82F6', '#1E40AF']} // Dark blue gradient matching Figma
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={[styles.card, styles.monthlyCard]}
+        accessibilityRole="summary"
+        accessibilityLabel={`Monthly expenses: ${formatAmount(amount)}${progress !== undefined ? `, ${Math.round(progress)}% of budget used` : ''}`}
       >
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -66,11 +77,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
           </View>
           <ChevronButton />
         </View>
-        
-        <Text style={[styles.amount, styles.monthlyAmount]}>
+
+        <Text
+          style={[styles.amount, styles.monthlyAmount]}
+          accessibilityRole="text"
+          accessibilityLabel={`Amount: ${formatAmount(amount)}`}
+        >
           {formatAmount(amount)}
         </Text>
-        
+
         {progress !== undefined && (
           <View style={styles.progressContainer}>
             <ProgressBar progress={progress} />
@@ -81,7 +96,11 @@ const StatsCard: React.FC<StatsCardProps> = ({
   }
 
   return (
-    <View style={[styles.card, styles.dailyCard, shadows.card]}>
+    <View
+      style={[styles.card, styles.dailyCard, shadows.card]}
+      accessibilityRole="summary"
+      accessibilityLabel={`Today's expenses: ${formatAmount(amount)}`}
+    >
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <WalletIcon />
@@ -89,8 +108,12 @@ const StatsCard: React.FC<StatsCardProps> = ({
         </View>
         <ChevronButton />
       </View>
-      
-      <Text style={[styles.amount, styles.dailyAmount]}>
+
+      <Text
+        style={[styles.amount, styles.dailyAmount]}
+        accessibilityRole="text"
+        accessibilityLabel={`Today's amount: ${formatAmount(amount)}`}
+      >
         {formatAmount(amount)}
       </Text>
     </View>
@@ -107,6 +130,7 @@ const styles = StyleSheet.create({
 
   monthlyCard: {
     height: 148,
+    // backgroundColor removed - using LinearGradient
   } as ViewStyle,
 
   dailyCard: {

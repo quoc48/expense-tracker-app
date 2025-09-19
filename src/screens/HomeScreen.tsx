@@ -17,7 +17,6 @@ import { spacing } from '../constants/spacing';
 import CustomHeader from '../components/common/CustomHeader';
 import StatsCard from '../components/common/StatsCard';
 import CategoryItem from '../components/common/CategoryItem';
-import FABButton from '../components/common/FABButton';
 
 // Real Data Integration
 import { useExpenseData } from '../hooks/useExpenseData';
@@ -35,6 +34,15 @@ const HomeScreen: React.FC = () => {
     getFormattedMonth,
     isCurrentMonth
   } = useExpenseData();
+
+  // Track if this is the initial load vs month navigation
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!loading && !hasInitiallyLoaded) {
+      setHasInitiallyLoaded(true);
+    }
+  }, [loading, hasInitiallyLoaded]);
 
   const handlePreviousMonth = () => {
     console.log('Navigate to previous month');
@@ -56,13 +64,9 @@ const HomeScreen: React.FC = () => {
     // TODO: Navigate to category detail screen
   };
 
-  const handleFABPress = () => {
-    console.log('FAB pressed - Add new expense');
-    // TODO: Navigate to Add Expense screen
-  };
 
-  // Show loading state
-  if (loading) {
+  // Show loading state only for initial load
+  if (loading && !hasInitiallyLoaded) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -99,6 +103,7 @@ const HomeScreen: React.FC = () => {
           currentMonth={getFormattedMonth()}
           onPreviousMonth={handlePreviousMonth}
           onNextMonth={handleNextMonth}
+          loading={loading && hasInitiallyLoaded}
         />
 
         {/* Stats Section */}
@@ -134,12 +139,9 @@ const HomeScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* Bottom padding for FAB */}
+        {/* Bottom padding for navigation */}
         <View style={styles.bottomPadding} />
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <FABButton onPress={handleFABPress} />
     </SafeAreaView>
   );
 };

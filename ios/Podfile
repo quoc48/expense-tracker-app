@@ -31,5 +31,36 @@ target 'TempProject' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Fix deployment target warnings and RCT-Folly compilation issues
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+
+        # Fix RCT-Folly time macro redefinition issues
+        if target.name == 'RCT-Folly'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] += [
+            '_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES=1',
+            'FOLLY_HAVE_CLOCK_GETTIME=1'
+          ]
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+          # Suppress macro redefinition warnings
+          config.build_settings['WARNING_CFLAGS'] ||= ['$(inherited)']
+          config.build_settings['WARNING_CFLAGS'] << '-Wno-macro-redefined'
+        end
+
+        # Suppress warnings for other dependencies
+        if ['fmt', 'glog', 'libevent'].include?(target.name)
+          config.build_settings['WARNING_CFLAGS'] ||= ['$(inherited)']
+          config.build_settings['WARNING_CFLAGS'] += [
+            '-Wno-deprecated-declarations',
+            '-Wno-documentation',
+            '-Wno-conversion',
+            '-Wno-unreachable-code'
+          ]
+        end
+      end
+    end
   end
 end
